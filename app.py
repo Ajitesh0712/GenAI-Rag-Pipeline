@@ -2,6 +2,11 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
+
+from pydantic import BaseModel
+from services.rag import ask_rag
+
+
 from fastapi import UploadFile, File, HTTPException
 from pathlib import Path
 import shutil
@@ -61,3 +66,29 @@ async def upload_file(
             status_code=500,
             detail=str(e)
         )
+    
+class ChatRequest(BaseModel):
+    message: str
+
+
+@app.post("/chat")
+async def chat(
+    request: ChatRequest
+):
+    try:
+
+        answer = ask_rag(
+            request.message
+        )
+
+        return {
+            "success": True,
+            "answer": answer
+        }
+
+    except Exception as e:
+
+        return {
+            "success": False,
+            "error": str(e)
+        }

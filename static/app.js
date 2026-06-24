@@ -1,35 +1,58 @@
-async function uploadFile() {
+window.sendMessage = async function() {
 
-    const fileInput =
-        document.getElementById("fileInput");
+    const input =
+        document.getElementById(
+            "messageInput"
+        );
 
-    if (fileInput.files.length === 0) {
-        alert("Select a file");
+    const chatBox =
+        document.getElementById(
+            "chatBox"
+        );
+
+    const message =
+        input.value.trim();
+
+    if (!message) {
         return;
     }
 
-    const formData =
-        new FormData();
+    chatBox.innerHTML += `
+        <div>
+            <b>You:</b>
+            ${message}
+        </div>
+        <hr>
+    `;
 
-    formData.append(
-        "file",
-        fileInput.files[0]
-    );
+    input.value = "";
 
     const response =
         await fetch(
-            "/upload",
+            "/chat",
             {
                 method: "POST",
-                body: formData
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+                body: JSON.stringify({
+                    message: message
+                })
             }
         );
 
     const data =
         await response.json();
 
-    document.getElementById(
-        "uploadResult"
-    ).innerHTML =
-        `<p>${data.filename}</p>`;
+    chatBox.innerHTML += `
+        <div>
+            <b>Assistant:</b>
+            ${data.answer}
+        </div>
+        <hr>
+    `;
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
 }
