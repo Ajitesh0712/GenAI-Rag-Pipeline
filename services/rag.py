@@ -18,43 +18,88 @@ def retrieve_context(
 
     return results
 
-def build_context(
-    results
-):
+def build_context(results):
 
     documents = results["documents"][0]
+    metadatas = results["metadatas"][0]
 
-    context = "\n\n".join(
-        documents
-    )
+    context = []
 
-    return context
+    for doc, meta in zip(documents, metadatas):
+
+        context.append(
+            f"""
+Document: {meta['filename']}
+Page: {meta['page']}
+Chunk: {meta['chunk_index']}
+
+{doc}
+"""
+        )
+
+    return "\n\n------------------------\n\n".join(context)
 
 def build_prompt(question, context):
 
     return f"""
-You are a helpful AI assistant.
+You are a professional AI assistant.
 
 Answer ONLY using the provided context.
 
-Keep answers concise and well formatted.
+If the answer cannot be found in the context,
+reply:
 
-Do not copy large portions of the context.
+"I could not find that information in the provided documents."
 
-Summarize information naturally.
+Formatting Rules:
 
-If the answer is not present in the context,
-say "I could not find that information."
+- Respond in Markdown.
+- Use a main heading (#) for the topic.
+- Use section headings (##) where appropriate.
+- Use bullet points for lists.
+- Use **bold** for important terms.
+- Keep paragraphs short (2-4 lines).
+- Leave one blank line between sections.
+- Do NOT write everything in one paragraph.
+- Do NOT mention the context or that you were given context.
+- Summarize naturally instead of copying large blocks.
+
+Example Format:
+
+# Topic Name
+
+## Overview
+
+Short explanation.
+
+## Key Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Technologies
+
+- Python
+- Flask
+- ChromaDB
+
+## Summary
+
+One short concluding paragraph.
+
+-------------------------
 
 Context:
 {context}
+
+-------------------------
 
 Question:
 {question}
 
 Answer:
 """
-
 
 def ask_rag(
     question
@@ -77,4 +122,27 @@ def ask_rag(
         prompt
     )
 
-    return answer
+    sources = []
+    seen = set()
+
+    for metadata in results["metadatas"][0]:
+
+        key = (
+            metadata["filename"],
+            metadata["page"]
+        )
+
+        if key not in seen:
+
+            seen.add(key)
+
+            sources.append({
+                "filename": metadata["filename"],
+                "page": metadata["page"]
+            })
+
+    return {
+        "answer": answer,
+        "sources": sources
+    }
+

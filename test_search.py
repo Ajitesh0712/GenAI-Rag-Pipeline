@@ -6,7 +6,7 @@ from services.vector_store import (
     search
 )
 
-query = (
+query = (   
     "Tell me about your recommendation system"
 )
 

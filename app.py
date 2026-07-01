@@ -2,10 +2,12 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-
+from services.indexer import index_document
 from pydantic import BaseModel
 from services.rag import ask_rag
 
+from services.document_manager import list_documents
+from services.document_manager import delete_document
 
 from fastapi import UploadFile, File, HTTPException
 from pathlib import Path
@@ -55,10 +57,13 @@ async def upload_file(
                 file.file,
                 buffer
             )
-
+        chunk_count = index_document(
+            str(save_path)
+        )
         return {
             "success": True,
-            "filename": filename
+            "filename": filename,
+            "chunks":chunk_count
         }
 
     except Exception as e:
@@ -77,13 +82,14 @@ async def chat(
 ):
     try:
 
-        answer = ask_rag(
+        result = ask_rag(
             request.message
         )
 
         return {
             "success": True,
-            "answer": answer
+            "answer": result["answer"],
+            "sources": result["sources"]
         }
 
     except Exception as e:
@@ -92,3 +98,20 @@ async def chat(
             "success": False,
             "error": str(e)
         }
+    
+@app.get("/documents")
+async def get_documents():
+    return {
+        "success": True,
+        "documents": list_documents()
+    }
+
+@app.delete("/documents/{filename}")
+async def delete_document_api(filename: str):
+
+    deleted = delete_document(filename)
+
+    return {
+        "success": True,
+        "deleted_chunks": deleted
+    }
