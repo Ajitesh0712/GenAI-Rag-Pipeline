@@ -151,6 +151,14 @@ window.uploadDocument = async function() {
     const data =
         await response.json();
 
+    if (!response.ok) {
+
+        alert(data.detail);
+
+        return;
+
+    }
+
     document.getElementById(
         "uploadStatus"
     ).innerHTML =
@@ -158,13 +166,7 @@ window.uploadDocument = async function() {
         await window.loadDocuments();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
 
-    document
-        .getElementById("uploadBtn")
-        .addEventListener("click", window.uploadDocument);
-
-});
 
 window.loadDocuments = async function () {
 
@@ -255,3 +257,19 @@ window.deleteDocument = async function (filename) {
 
     }
 }
+
+document.getElementById("fileInput").addEventListener("change", function(){
+
+    const label = document.getElementById("selectedFile");
+
+    if(this.files.length){
+
+        label.textContent = this.files[0].name;
+
+    }else{
+
+        label.textContent = "No file selected";
+
+    }
+
+});

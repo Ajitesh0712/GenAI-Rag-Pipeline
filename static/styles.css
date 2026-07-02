@@ -82,19 +82,19 @@ body{
 
 .sidebar{
 
-    background:
+    background:var(--sidebar);
 
-        var(--sidebar);
-
-    border-right:
-
-        1px solid var(--border);
+    border-right:1px solid var(--border);
 
     display:flex;
 
     flex-direction:column;
 
+    height:100vh;
+
     padding:28px;
+
+    overflow:hidden;
 
 }
 
@@ -132,11 +132,13 @@ body{
 
     flex:1;
 
-    margin-top:25px;
-
     overflow-y:auto;
 
-    padding-right:5px;
+    min-height:0;
+
+    margin:25px 0;
+
+    padding-right:8px;
 
 }
 
@@ -146,7 +148,13 @@ body{
 
 .upload-panel{
 
-    margin-top:20px;
+    flex-shrink:0;
+
+    border-top:1px solid var(--border);
+
+    padding-top:20px;
+
+    background:var(--sidebar);
 
 }
 
@@ -789,5 +797,19 @@ body{
 .send-btn:hover{
 
     transform:scale(1.05);
+
+}
+
+.selected-file{
+
+    margin-top:12px;
+
+    text-align:center;
+
+    color:var(--subtext);
+
+    font-size:14px;
+
+    word-break:break-word;
 
 }

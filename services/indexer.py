@@ -11,12 +11,18 @@ def index_document(file_path):
     filename = Path(file_path).name
 
     pages = extract_document(file_path)
-
+    if not pages or all(len(page["text"]) == 0 for page in pages):
+        raise ValueError(
+            "No extractable text found in this document."
+        )
     chunks = create_chunks(
         pages,
         filename
     )
-
+    if not chunks:
+        raise ValueError(
+            "Document contains no readable text."
+        )
     embeddings = []
 
     for chunk in chunks:
@@ -32,3 +38,4 @@ def index_document(file_path):
     )
 
     return len(chunks)
+

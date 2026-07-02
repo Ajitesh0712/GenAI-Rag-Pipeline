@@ -1,16 +1,6 @@
-# test_embedding.py
+from services.embeddings import get_embedding
 
-import requests
+embedding = get_embedding("Hello World")
 
-response = requests.post(
-    "http://localhost:11434/api/embeddings",
-    json={
-        "model": "nomic-embed-text",
-        "prompt": "What is artificial intelligence?"
-    }
-)
-
-data = response.json()
-
-print("Vector length:", len(data["embedding"]))
-print("First 10 values:", data["embedding"][:10])
+print(type(embedding))
+print(len(embedding))
