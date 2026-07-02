@@ -61,30 +61,40 @@
 
         <div class="upload-panel">
 
-            <label
-                class="upload-box">
+            <div class="upload-panel">
 
-                <i
-                    class="bi bi-cloud-arrow-up-fill"></i>
+                <label class="section-label">
 
-                <span>
+                    <h5>Upload File</h5>
 
-                    Upload Document
-
-                </span>
-
-                <small>
-
-                    PDF • DOCX • TXT
-
-                </small>
+                </label>
 
                 <input
                     type="file"
                     id="fileInput"
-                    hidden>
+                    class="form-control mb-3">
 
-            </label>
+
+            </div>
+            <br>
+            <hr>
+            <br>
+
+                <h5>Import Website</h5>
+
+                <input
+                    type="text"
+                    id="urlInput"
+                    class="form-control"
+                    placeholder="https://example.com">
+
+                <button
+                    class="upload-btn mt-3"
+                    onclick="uploadURL()">
+
+                    Import Website
+
+                </button>
             <div id="selectedFile" class="selected-file">
 
                 No file selected

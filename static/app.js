@@ -181,6 +181,28 @@ window.loadDocuments = async function () {
 
     data.documents.forEach(doc => {
 
+        let badge = "PDF";
+        let badgeClass = "badge-pdf";
+
+        let displayName = doc.filename;
+
+        if (doc.filename.startsWith("http")) {
+
+            badge = "URL";
+            badgeClass = "badge-url";
+
+            const url = new URL(doc.filename);
+
+            const parts = url.pathname.split("/");
+
+            displayName = decodeURIComponent(
+                parts[parts.length - 1]
+            );
+
+            displayName = displayName.replace(/_/g, " ");
+
+        }
+
         container.innerHTML += `
 
             <div class="document-card">
@@ -195,13 +217,17 @@ window.loadDocuments = async function () {
 
                 <div class="document-title">
 
-                    <div>
+                    <span class="document-name">
 
-                        <i class="bi bi-file-earmark-text-fill"></i>
+                        ${displayName}
 
-                        ${doc.filename}
+                    </span>
 
-                    </div>
+                    <span class="source-badge ${badgeClass}">
+
+                        ${badge}
+
+                    </span>
 
                 </div>
 
@@ -213,7 +239,7 @@ window.loadDocuments = async function () {
 
             </div>
 
-            `;
+        `;
 
     });
 
@@ -273,3 +299,51 @@ document.getElementById("fileInput").addEventListener("change", function(){
     }
 
 });
+
+window.uploadURL = async function () {
+
+    const input =
+        document.getElementById("urlInput");
+
+    const url = input.value.trim();
+
+    if (!url) {
+
+        alert("Please enter a URL");
+
+        return;
+
+    }
+
+    const response = await fetch("/upload-url", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            url: url
+        })
+
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+        alert(data.detail);
+
+        return;
+
+    }
+
+    document.getElementById("uploadStatus").innerHTML =
+        `Indexed ${data.chunks} chunks`;
+
+    input.value = "";
+
+    await window.loadDocuments();
+
+}

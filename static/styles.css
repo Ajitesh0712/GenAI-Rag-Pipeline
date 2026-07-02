@@ -66,7 +66,7 @@ body{
 
     grid-template-columns:
 
-        320px
+        380px
 
         1fr;
 
@@ -268,11 +268,27 @@ body{
 
     align-items:center;
 
+    gap:12px;
+
+    margin-bottom:10px;
+
+}
+
+.document-name{
+
+    flex:1;
+
+    font-size:14px;
+
     font-weight:600;
 
     color:var(--text);
 
-    margin-bottom:10px;
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
 
 }
 
@@ -300,31 +316,39 @@ body{
 
     position:absolute;
 
-    top:15px;
+    bottom:14px;
 
-    right:15px;
+    right:14px;
+
+    width:24px;
+
+    height:24px;
 
     border:none;
 
-    background:#FFF4F4;
+    border-radius:8px;
 
-    color:#D9534F;
+    background:#FFF5F5;
 
-    width:34px;
+    color:#EF4444;
 
-    height:34px;
+    display:flex;
 
-    border-radius:10px;
+    justify-content:center;
+
+    align-items:center;
 
     cursor:pointer;
 
     transition:.2s;
 
+    font-size:11px;
+
 }
 
 .delete-btn:hover{
 
-    background:#D9534F;
+    background:#EF4444;
 
     color:white;
 
@@ -811,5 +835,43 @@ body{
     font-size:14px;
 
     word-break:break-word;
+
+}
+
+/* ==========================
+        SOURCE BADGES
+========================== */
+
+.source-badge{
+
+    display:inline-block;
+
+    padding:4px 10px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:600;
+
+    letter-spacing:.5px;
+
+    text-transform:uppercase;
+
+}
+
+.badge-pdf{
+
+    background:#EAF2FF;
+
+    color:#3F72D8;
+
+}
+
+.badge-url{
+
+    background:#FFF6D8;
+
+    color:#B68500;
 
 }

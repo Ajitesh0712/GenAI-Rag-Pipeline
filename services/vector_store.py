@@ -66,3 +66,32 @@ def search(
     )
 
     return results
+
+def list_documents():
+
+    results = collection.get(
+        include=["metadatas"]
+    )
+
+    documents = {}
+
+    for metadata in results["metadatas"]:
+
+        name = metadata["filename"]
+
+        if name not in documents:
+
+            documents[name] = 0
+
+        documents[name] += 1
+
+    return [
+
+        {
+            "filename": name,
+            "chunks": count
+        }
+
+        for name, count in documents.items()
+
+    ]

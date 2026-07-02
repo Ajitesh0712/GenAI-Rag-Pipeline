@@ -6,12 +6,16 @@ from services.indexer import index_document
 from pydantic import BaseModel
 from services.rag import ask_rag
 
-from services.document_manager import list_documents
+#from services.document_manager import list_documents
 from services.document_manager import delete_document
 
 from fastapi import UploadFile, File, HTTPException
 from pathlib import Path
 import shutil
+
+from services.indexer import index_document, index_url
+from services.vector_store import list_documents
+
 app = FastAPI()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -106,7 +110,7 @@ async def get_documents():
         "documents": list_documents()
     }
 
-@app.delete("/documents/{filename}")
+@app.delete("/documents/{filename:path}")
 async def delete_document_api(filename: str):
 
     deleted = delete_document(filename)
@@ -115,3 +119,27 @@ async def delete_document_api(filename: str):
         "success": True,
         "deleted_chunks": deleted
     }
+
+class URLRequest(BaseModel):
+    url: str
+
+
+@app.post("/upload-url")
+async def upload_url(request: URLRequest):
+
+    try:
+
+        chunk_count = index_url(request.url)
+
+        return {
+            "success": True,
+            "url": request.url,
+            "chunks": chunk_count
+        }
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
