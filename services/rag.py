@@ -2,6 +2,11 @@ from services.embeddings import get_embedding
 from services.vector_store import search
 from services.ollama_client import generate_response
 
+from services.memory import (
+    add_message,
+    get_history
+)
+
 def retrieve_context(
     question,
     top_k=3
@@ -39,7 +44,11 @@ Chunk: {meta['chunk_index']}
 
     return "\n\n------------------------\n\n".join(context)
 
-def build_prompt(question, context):
+def build_prompt(
+    question,
+    context,
+    history
+):
 
     return f"""
 You are a professional AI assistant.
@@ -90,6 +99,11 @@ One short concluding paragraph.
 
 -------------------------
 
+Conversation History:
+{history}
+
+-------------------------
+
 Context:
 {context}
 
@@ -105,21 +119,40 @@ def ask_rag(
     question
 ):
 
+    history = build_history()
+
+    rewritten_question = rewrite_question(
+        question,
+        history
+    )
+
+    print("\nOriginal:", question)
+    print("Rewritten:", rewritten_question)
+
     results = retrieve_context(
-        question
+        rewritten_question
     )
 
     context = build_context(
         results
     )
-
+   
     prompt = build_prompt(
         question,
-        context
+        context,
+        history
     )
 
     answer = generate_response(
         prompt
+    )
+    add_message(
+        "user",
+        question
+    )
+    add_message(
+        "assistant",
+        answer
     )
 
     sources = []
@@ -146,3 +179,66 @@ def ask_rag(
         "sources": sources
     }
 
+def build_history():
+
+    history = get_history()
+
+    if not history:
+        return ""
+
+    conversation = []
+
+    for message in history:
+
+        role = (
+            "User"
+            if message["role"] == "user"
+            else "Assistant"
+        )
+
+        conversation.append(
+            f"{role}: {message['content']}"
+        )
+
+    return "\n".join(conversation)
+
+
+
+def rewrite_question(
+    question,
+    history
+):
+
+    if not history.strip():
+
+        return question
+
+    rewrite_prompt = f"""
+You are a query rewriting assistant.
+
+Given the conversation history and the latest user question,
+rewrite the latest question so it is completely self-contained.
+
+Rules:
+
+- Only rewrite the user's latest question.
+- Do not answer it.
+- Keep the meaning identical.
+- If the question is already standalone, return it unchanged.
+
+Conversation:
+
+{history}
+
+Latest Question:
+
+{question}
+
+Standalone Question:
+"""
+
+    rewritten = generate_response(
+        rewrite_prompt
+    )
+
+    return rewritten.strip()
