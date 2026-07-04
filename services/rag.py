@@ -1,6 +1,10 @@
 from services.embeddings import get_embedding
 from services.vector_store import search
-from services.ollama_client import generate_response
+from services.ollama_client import (
+    generate_response,
+    generate_response_stream
+)
+import json
 
 from services.memory import (
     add_message,
@@ -178,6 +182,88 @@ def ask_rag(
         "answer": answer,
         "sources": sources
     }
+
+
+def ask_rag_stream(question):
+
+    history = build_history()
+
+    rewritten_question = rewrite_question(
+        question,
+        history
+    )
+
+    results = retrieve_context(
+        rewritten_question
+    )
+
+    context = build_context(
+        results
+    )
+    sources = []
+    seen = set()
+
+    for metadata in results["metadatas"][0]:
+
+        key = (
+            metadata["filename"],
+            metadata["page"]
+        )
+
+        if key not in seen:
+
+            seen.add(key)
+
+            sources.append({
+
+                "filename": metadata["filename"],
+
+                "page": metadata["page"]
+
+            })
+    prompt = build_prompt(
+        question,
+        context,
+        history
+    )
+
+    def stream():
+
+        full_answer = ""
+
+        for token in generate_response_stream(prompt):
+
+            full_answer += token
+
+            yield json.dumps({
+                "type": "token",
+                "content": token
+            }) + "\n"
+
+        add_message(
+            "user",
+            question
+        )
+
+        add_message(
+            "assistant",
+            full_answer
+        )
+        yield json.dumps({
+
+            "type": "sources",
+
+            "content": sources
+
+        }) + "\n"
+
+        yield json.dumps({
+
+            "type": "done"
+
+        }) + "\n"
+
+    return stream()
 
 def build_history():
 

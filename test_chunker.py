@@ -1,23 +1,8 @@
-from services.document_processor import extract_document
-from services.chunker import create_chunks
+from services.ollama_client import generate_response_stream
 
-pages = extract_document(
-    "uploads/My journey into AI.pdf"
-)
+for token in generate_response_stream(
 
-chunks = create_chunks(
-    pages,
-    "My journey into AI.pdf"
-)
+    "Explain RAG in 50 words."
 
-print(f"Chunks: {len(chunks)}")
-
-for chunk in chunks[:3]:
-
-    print("\n---")
-
-    print(chunk["id"])
-
-    print(chunk["page"])
-
-    print(chunk["text"][:300])
+):
+    print(token, end="", flush=True)

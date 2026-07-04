@@ -4,7 +4,10 @@ from fastapi.staticfiles import StaticFiles
 
 from services.indexer import index_document
 from pydantic import BaseModel
-from services.rag import ask_rag
+from services.rag import (
+    ask_rag,
+    ask_rag_stream
+)
 
 #from services.document_manager import list_documents
 from services.document_manager import delete_document
@@ -15,6 +18,8 @@ import shutil
 
 from services.indexer import index_document, index_url
 from services.vector_store import list_documents
+
+from fastapi.responses import StreamingResponse
 
 app = FastAPI()
 UPLOAD_DIR = Path("uploads")
@@ -143,3 +148,18 @@ async def upload_url(request: URLRequest):
             status_code=500,
             detail=str(e)
         )
+    
+
+@app.post("/chat-stream")
+async def chat_stream(
+    request: ChatRequest
+):
+
+    generator = ask_rag_stream(
+        request.message
+    )
+
+    return StreamingResponse(
+        generator,
+        media_type="text/plain"
+    )

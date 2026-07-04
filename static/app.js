@@ -35,7 +35,7 @@ window.sendMessage = async function() {
 
     const response =
         await fetch(
-            "/chat",
+            "/chat-stream",
             {
                 method: "POST",
                 headers: {
@@ -48,38 +48,17 @@ window.sendMessage = async function() {
             }
         );
 
-    const data = await response.json();
-    console.log(data);
+    const reader = response.body.getReader();
 
-    let sourcesHTML = "";
+        const decoder = new TextDecoder();
 
-    if(data.sources){
+        let answer = "";
 
-        sourcesHTML += `
-        <div class="sources">
+        const assistantMessage = document.createElement("div");
 
-            <strong>📄 Sources</strong><br>
-        `;
+        assistantMessage.className = "message assistant-message";
 
-        data.sources.forEach(source=>{
-
-            sourcesHTML+=`
-            <span class="source-chip">
-
-                ${source.filename}
-
-            </span>
-            `;
-
-        });
-
-        sourcesHTML+="</div>";
-
-    }
-
-    chatBox.innerHTML += `
-
-    <div class="message assistant-message">
+        assistantMessage.innerHTML = `
 
         <div class="message-content">
 
@@ -94,27 +73,102 @@ window.sendMessage = async function() {
                 AI Assistant
 
             </div>
-            <div class="mt-3">
 
-                ${marked.parse(data.answer)}
-
-            </div>
-
-            ${sourcesHTML}
+            <div class="streaming-answer mt-3"></div>
 
         </div>
 
-    </div>
+        `;
 
-    `;
+        chatBox.appendChild(
+            assistantMessage
+        );
 
-        chatBox.scrollTo({
+const answerDiv =
+    assistantMessage.querySelector(
+        ".streaming-answer"
+    );
+        let buffer = "";
 
-            top:chatBox.scrollHeight,
+        while (true) {
 
-            behavior:"smooth"
+            const { done, value } =
+                await reader.read();
 
-        });
+            if (done) {
+                break;
+            }
+
+            buffer += decoder.decode(
+                value,
+                {
+                    stream: true
+                }
+            );
+
+            const lines = buffer.split("\n");
+
+            buffer = lines.pop();
+
+            for (const line of lines) {
+
+                if (!line.trim()) {
+                    continue;
+                }
+
+                const event = JSON.parse(line);
+
+                if (event.type === "token") {
+
+                    answer += event.content;
+
+                    answerDiv.innerHTML =
+                        marked.parse(answer);
+
+                }
+
+                else if (event.type === "sources") {
+
+                    let sourcesHTML = `
+
+                        <div class="sources">
+
+                            <strong>📄 Sources</strong><br>
+
+                    `;
+
+                    event.content.forEach(source => {
+
+                        sourcesHTML += `
+
+                            <span class="source-chip">
+
+                                ${source.filename}
+
+                            </span>
+
+                        `;
+
+                    });
+
+                    sourcesHTML += "</div>";
+
+                    answerDiv.innerHTML += sourcesHTML;
+
+                }
+
+                else if (event.type === "done") {
+
+                    console.log("Streaming Finished");
+
+                }
+
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
+
+            }
+
+        }
     }
 
 window.uploadDocument = async function() {
