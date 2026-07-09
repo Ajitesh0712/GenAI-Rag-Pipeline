@@ -166,6 +166,8 @@ const answerDiv =
 
                     console.log("Streaming Finished");
 
+                    await window.loadChats();
+
                 }
 
                 chatBox.scrollTop =
@@ -325,10 +327,23 @@ window.loadChats = async function(){
         container.innerHTML += `
 
             <div
-                class="chat-card"
-                onclick="window.openChat(${chat.id})">
+                class="chat-card">
 
-                💬 ${chat.title}
+                <span
+                    class="chat-title"
+                    onclick="window.openChat(${chat.id})">
+
+                    💬 ${chat.title}
+
+                </span>
+
+                <button
+                    class="delete-chat-btn"
+                    onclick="event.stopPropagation(); window.deleteChat(${chat.id})">
+
+                    <i class="bi bi-trash"></i>
+
+                </button>
 
             </div>
 
@@ -337,7 +352,6 @@ window.loadChats = async function(){
     });
 
 }
-
 window.openChat = async function(chatId){
 
     currentChatId = chatId;
@@ -599,6 +613,41 @@ knowledgeHeader.onclick = function(){
 
         knowledgeArrow.className =
             "bi bi-chevron-right";
+
+    }
+
+}
+
+window.deleteChat = async function(chatId){
+
+    const confirmDelete = confirm(
+        "Delete this chat?"
+    );
+
+    if(!confirmDelete){
+        return;
+    }
+
+    const response = await fetch(
+
+        `/chat/${chatId}`,
+
+        {
+            method:"DELETE"
+        }
+
+    );
+
+    const data =
+        await response.json();
+
+    if(data.success){
+
+        await window.loadChats();
+
+        document.getElementById(
+            "chatBox"
+        ).innerHTML = "";
 
     }
 

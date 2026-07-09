@@ -8,7 +8,8 @@ import json
 
 from services.chat_db import (
     build_history,
-    save_message
+    save_message,
+    update_chat_title
 )
 
 def retrieve_context(
@@ -162,6 +163,16 @@ def ask_rag(
         "assistant",
         answer
     )
+    history = build_history(chat_id)
+
+    if history.count("User:") == 1:
+
+        title = generate_chat_title(question)
+
+        update_chat_title(
+            chat_id,
+            title
+        )
 
     sources = []
     seen = set()
@@ -258,6 +269,16 @@ def ask_rag_stream(
             "assistant",
             full_answer
         )
+        history = build_history(chat_id)
+
+        if history.count("User:") == 1:
+
+            title = generate_chat_title(question)
+
+            update_chat_title(
+                chat_id,
+                title
+            )
         yield json.dumps({
 
             "type": "sources",
@@ -314,3 +335,25 @@ Standalone Question:
     )
 
     return rewritten.strip()
+
+def generate_chat_title(question):
+
+    prompt = f"""
+Generate a very short chat title.
+
+Rules:
+
+- Maximum 5 words.
+- No punctuation.
+- No quotes.
+- No markdown.
+- Return ONLY the title.
+
+Question:
+
+{question}
+
+Title:
+"""
+
+    return generate_response(prompt).strip()

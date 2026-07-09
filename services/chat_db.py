@@ -221,3 +221,57 @@ def build_history(session_id):
         )
 
     return "\n".join(conversation)
+
+def update_chat_title(
+    session_id,
+    title
+):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+
+        """
+        UPDATE chat_sessions
+        SET title = ?
+        WHERE id = ?
+        """,
+
+        (
+            title,
+            session_id
+        )
+
+    )
+
+    conn.commit()
+
+    conn.close()
+
+def delete_chat(session_id):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM messages
+        WHERE session_id = ?
+        """,
+        (session_id,)
+    )
+
+    cursor.execute(
+        """
+        DELETE FROM chat_sessions
+        WHERE id = ?
+        """,
+        (session_id,)
+    )
+
+    conn.commit()
+
+    conn.close()

@@ -862,6 +862,29 @@ body{
     transition:.2s;
 
 }
+.delete-chat-btn{
+
+    border:none;
+
+    background:transparent;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    transition:.2s;
+
+}
+.chat-card:hover .delete-chat-btn{
+
+    opacity:1;
+
+}
+.delete-chat-btn:hover{
+
+    color:#ff4d4f;
+
+}
 
 .chat-card:hover{
 

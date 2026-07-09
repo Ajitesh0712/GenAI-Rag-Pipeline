@@ -6,6 +6,7 @@ from services.chat_db import initialize_database
 from services.chat_db import list_chats
 from services.chat_db import get_chat_history
 from services.chat_db import create_chat
+from services.chat_db import delete_chat
 
 from services.indexer import index_document
 from pydantic import BaseModel
@@ -221,4 +222,13 @@ async def new_chat():
 
         "chat_id": chat_id
 
+    }
+
+@app.delete("/chat/{chat_id}")
+async def delete_chat_api(chat_id: int):
+
+    delete_chat(chat_id)
+
+    return {
+        "success": True
     }
