@@ -43,93 +43,75 @@
 
         <div class="sidebar-header">
 
-            <hr>
+            <h3 class="logo">
 
-            <h6 class="sidebar-heading mt-3">
+                RAG Assistant
+
+            </h3>
+            <button
+                    id="newChatBtn"
+                    class="sidebar-btn primary">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    New Chat
+
+            </button>
+
+        </div>
+
+
+        <div class="sidebar-section">
+
+            <h2 class="sidebar-heading">
 
                 Chats
 
-            </h6>
+            </h2>
 
-            <div id="chatList">
-
-            </div>
-
-            <button
-                id="newChatBtn"
-                class="btn btn-primary w-100 mt-3">
-
-                + New Chat
-
-            </button>
+            <div id="chatList"></div>
 
         </div>
 
-        <div
-            id="documentsList"
-            class="documents-list">
+        <div class="sidebar-section">
 
-        </div>
+    <h6
+        id="knowledgeHeader"
+        class="sidebar-heading collapsible">
 
-        <div class="upload-panel">
+        <i
+            id="knowledgeArrow"
+            class="bi bi-chevron-right">
+        </i>
 
-            <div class="upload-panel">
+        Knowledge Base
 
-                <label class="section-label">
+        <span id="knowledgeCount">
 
-                    <h5>Upload File</h5>
+            (0)
 
-                </label>
+        </span>
 
-                <input
-                    type="file"
-                    id="fileInput"
-                    class="form-control mb-3">
+    </h6>
 
+    <div
+        id="documentsList"
+        class="documents-list"
+        style="display:block;">
 
-            </div>
-            <br>
-            <hr>
-            <br>
+    </div>
 
-                <h5>Import Website</h5>
+    <button
+        id="addKnowledgeBtn"
+        class="sidebar-btn secondary">
 
-                <input
-                    type="text"
-                    id="urlInput"
-                    class="form-control"
-                    placeholder="https://example.com">
+        <i class="bi bi-database-fill-add"></i>
 
-                <button
-                    class="upload-btn mt-3"
-                    onclick="uploadURL()">
+        Add Knowledge
 
-                    Import Website
+    </button>
 
-                </button>
-            <div id="selectedFile" class="selected-file">
-
-                No file selected
-
-            </div>
-
-            <button
-
-                class="upload-btn"
-
-                onclick="window.uploadDocument()">
-
-                Upload & Index
-
-            </button>
-
-            <div
-                id="uploadStatus"
-                class="upload-status">
-
-            </div>
-
-        </div>
+</div>
 
     </aside>
 
@@ -148,15 +130,7 @@
                     Conversation
 
                 </h2>
-                <button
-                    id="newChatBtn"
-                    class="new-chat-btn">
-
-                    <i class="bi bi-plus-lg"></i>
-
-                    New Chat
-
-                </button>
+                
 
                 <p>
 
@@ -196,7 +170,81 @@
 
 
 
+<div id="knowledgeModal" class="modal">
 
+    <div class="modal-content">
+
+        <span id="closeModal" class="close-btn">
+
+            &times;
+
+        </span>
+
+        <h2>
+
+            Add Knowledge
+
+        </h2>
+
+        <hr>
+
+        <h5>
+
+            Upload File
+
+        </h5>
+
+        <input
+            type="file"
+            id="fileInput"
+            class="form-control">
+
+        <div id="selectedFile"
+            class="selected-file">
+
+            No file selected
+
+        </div>
+
+        <button
+            class="upload-btn"
+            onclick="window.uploadDocument()">
+
+            Upload & Index
+
+        </button>
+
+        <hr>
+
+        <h5>
+
+            Import Website
+
+        </h5>
+
+        <input
+            type="text"
+            id="urlInput"
+            class="form-control"
+            placeholder="https://example.com">
+
+        <button
+            class="upload-btn"
+            onclick="window.uploadURL()">
+
+            Import Website
+
+        </button>
+
+        <div
+            id="uploadStatus"
+            class="upload-status">
+
+        </div>
+
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 

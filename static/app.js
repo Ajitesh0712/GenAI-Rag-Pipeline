@@ -237,6 +237,10 @@ window.loadDocuments = async function () {
         document.getElementById("documentsList");
 
     container.innerHTML = "";
+    document.getElementById(
+        "knowledgeCount"
+    ).textContent =
+        `(${data.documents.length})`;
 
     data.documents.forEach(doc => {
 
@@ -546,3 +550,56 @@ document
 
         }
     );
+
+
+const modal =
+    document.getElementById(
+        "knowledgeModal"
+    );
+
+document
+.getElementById("addKnowledgeBtn")
+.onclick=function(){
+
+    modal.style.display="flex";
+
+};
+
+document
+.getElementById("closeModal")
+.onclick=function(){
+
+    modal.style.display="none";
+
+};
+
+const knowledgeHeader =
+    document.getElementById("knowledgeHeader");
+
+const knowledgeList =
+    document.getElementById("documentsList");
+
+const knowledgeArrow =
+    document.getElementById("knowledgeArrow");
+
+knowledgeHeader.onclick = function(){
+
+    if(knowledgeList.style.display==="none"){
+
+        knowledgeList.style.display="block";
+
+        knowledgeArrow.className =
+            "bi bi-chevron-down";
+
+    }
+
+    else{
+
+        knowledgeList.style.display="none";
+
+        knowledgeArrow.className =
+            "bi bi-chevron-right";
+
+    }
+
+}

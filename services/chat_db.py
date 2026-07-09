@@ -198,3 +198,26 @@ def list_chats():
         })
 
     return chats
+
+def build_history(session_id):
+
+    history = get_chat_history(session_id)
+
+    if not history:
+        return ""
+
+    conversation = []
+
+    for message in history:
+
+        role = (
+            "User"
+            if message["role"] == "user"
+            else "Assistant"
+        )
+
+        conversation.append(
+            f"{role}: {message['content']}"
+        )
+
+    return "\n".join(conversation)

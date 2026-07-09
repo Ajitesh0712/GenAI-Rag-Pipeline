@@ -6,9 +6,9 @@ from services.ollama_client import (
 )
 import json
 
-from services.memory import (
-    add_message,
-    get_history
+from services.chat_db import (
+    build_history,
+    save_message
 )
 
 def retrieve_context(
@@ -120,10 +120,11 @@ Answer:
 """
 
 def ask_rag(
+    chat_id,
     question
 ):
 
-    history = build_history()
+    history = build_history(chat_id)
 
     rewritten_question = rewrite_question(
         question,
@@ -150,11 +151,14 @@ def ask_rag(
     answer = generate_response(
         prompt
     )
-    add_message(
+    save_message(
+        chat_id,
         "user",
         question
     )
-    add_message(
+
+    save_message(
+        chat_id,
         "assistant",
         answer
     )
@@ -184,9 +188,12 @@ def ask_rag(
     }
 
 
-def ask_rag_stream(question):
+def ask_rag_stream(
+    chat_id,
+    question
+):
 
-    history = build_history()
+    history = build_history(chat_id)
 
     rewritten_question = rewrite_question(
         question,
@@ -240,12 +247,14 @@ def ask_rag_stream(question):
                 "content": token
             }) + "\n"
 
-        add_message(
+        save_message(
+            chat_id,
             "user",
             question
         )
 
-        add_message(
+        save_message(
+            chat_id,
             "assistant",
             full_answer
         )
@@ -264,29 +273,6 @@ def ask_rag_stream(question):
         }) + "\n"
 
     return stream()
-
-def build_history():
-
-    history = get_history()
-
-    if not history:
-        return ""
-
-    conversation = []
-
-    for message in history:
-
-        role = (
-            "User"
-            if message["role"] == "user"
-            else "Assistant"
-        )
-
-        conversation.append(
-            f"{role}: {message['content']}"
-        )
-
-    return "\n".join(conversation)
 
 
 

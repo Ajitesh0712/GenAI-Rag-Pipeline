@@ -103,6 +103,7 @@ async def chat(
     try:
 
         result = ask_rag(
+            request.chat_id,
             request.message
         )
 
@@ -167,6 +168,7 @@ async def chat_stream(
 ):
 
     generator = ask_rag_stream(
+        request.chat_id,
         request.message
     )
 
