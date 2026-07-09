@@ -2,12 +2,19 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
+from services.chat_db import initialize_database
+from services.chat_db import list_chats
+from services.chat_db import get_chat_history
+from services.chat_db import create_chat
+
 from services.indexer import index_document
 from pydantic import BaseModel
 from services.rag import (
     ask_rag,
     ask_rag_stream
 )
+
+from services.memory import clear_history
 
 #from services.document_manager import list_documents
 from services.document_manager import delete_document
@@ -22,6 +29,7 @@ from services.vector_store import list_documents
 from fastapi.responses import StreamingResponse
 
 app = FastAPI()
+initialize_database()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
@@ -82,6 +90,9 @@ async def upload_file(
         )
     
 class ChatRequest(BaseModel):
+
+    chat_id: int
+
     message: str
 
 
@@ -163,3 +174,49 @@ async def chat_stream(
         generator,
         media_type="text/plain"
     )
+
+@app.post("/chat/reset")
+async def reset_chat():
+
+    clear_history()
+
+    return {
+        "success": True
+    }
+
+
+@app.get("/chats")
+async def get_chats():
+
+    return {
+
+        "success": True,
+
+        "chats": list_chats()
+
+    }
+
+
+@app.get("/chat/{chat_id}")
+async def load_chat(chat_id: int):
+
+    return {
+
+        "success": True,
+
+        "messages": get_chat_history(chat_id)
+
+    }
+
+@app.post("/chat/new")
+async def new_chat():
+
+    chat_id = create_chat()
+
+    return {
+
+        "success": True,
+
+        "chat_id": chat_id
+
+    }

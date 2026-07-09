@@ -1,3 +1,4 @@
+let currentChatId = null;
 window.sendMessage = async function() {
 
     const input =
@@ -43,7 +44,11 @@ window.sendMessage = async function() {
                         "application/json"
                 },
                 body: JSON.stringify({
+
+                    chat_id: currentChatId,
+
                     message: message
+
                 })
             }
         );
@@ -298,10 +303,117 @@ window.loadDocuments = async function () {
     });
 
 }
+window.loadChats = async function(){
+
+    const response =
+        await fetch("/chats");
+
+    const data =
+        await response.json();
+
+    const container =
+        document.getElementById("chatList");
+
+    container.innerHTML = "";
+
+    data.chats.forEach(chat=>{
+
+        container.innerHTML += `
+
+            <div
+                class="chat-card"
+                onclick="window.openChat(${chat.id})">
+
+                💬 ${chat.title}
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+window.openChat = async function(chatId){
+
+    currentChatId = chatId;
+
+    const response =
+        await fetch(`/chat/${chatId}`);
+
+    const data =
+        await response.json();
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+    chatBox.innerHTML = "";
+
+    data.messages.forEach(message=>{
+
+        if(message.role==="user"){
+
+            chatBox.innerHTML += `
+
+                <div class="message user-message">
+
+                    <div class="message-content">
+
+                        ${message.content}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+        else{
+
+            chatBox.innerHTML += `
+
+                <div class="message assistant-message">
+
+                    <div class="message-content">
+
+                        <div class="assistant-title">
+
+                            <div class="assistant-avatar">
+
+                                <i class="bi bi-stars"></i>
+
+                            </div>
+
+                            AI Assistant
+
+                        </div>
+
+                        <div class="mt-3">
+
+                            ${marked.parse(message.content)}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+    });
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
 
 window.onload = function () {
 
     window.loadDocuments();
+    window.loadChats();
 
 }
 
@@ -401,3 +513,36 @@ window.uploadURL = async function () {
     await window.loadDocuments();
 
 }
+
+document
+    .getElementById("newChatBtn")
+    .addEventListener(
+        "click",
+        async function () {
+
+            await fetch(
+                "/chat/reset",
+                {
+                    method: "POST"
+                }
+            );
+
+            const response = await fetch(
+                "/chat/new",
+                {
+                    method: "POST"
+                }
+            );
+
+            const data = await response.json();
+
+            currentChatId = data.chat_id;
+
+            document.getElementById(
+                "chatBox"
+            ).innerHTML = "";
+
+            await window.loadChats();
+
+        }
+    );
